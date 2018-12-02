@@ -1,12 +1,25 @@
 package org.krzysztofk.transfers.web;
 
+import org.krzysztofk.transfers.accounts.Account;
 import ratpack.handling.Context;
 import ratpack.handling.Handler;
+import ratpack.jackson.Jackson;
+
+import static ratpack.jackson.Jackson.fromJson;
 
 public class AccountsHandler implements Handler {
+
     @Override
     public void handle(Context context) throws Exception {
         context.byMethod(method ->
-                method.get(() -> context.render("test")));
+                method.post(() -> context.render(
+                        context.parse(fromJson(Account.class))
+                                .map(this::handlePostAccount)
+                                .map(Jackson.toJson(context)))));
+    }
+
+    private Account handlePostAccount(Account account) {
+        System.out.println(account.number + " " + account.balance);
+        return account;
     }
 }
