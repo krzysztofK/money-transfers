@@ -19,7 +19,7 @@ public class AccountsHandler implements Handler {
     }
 
     private Account handlePostAccount(Account account) {
-        System.out.println(account.number + " " + account.balance);
+        System.out.println(account.getNumber() + " " + account.getBalance());
         return account;
     }
 }
