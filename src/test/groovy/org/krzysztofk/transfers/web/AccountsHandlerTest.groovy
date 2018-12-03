@@ -1,17 +1,18 @@
 package org.krzysztofk.transfers.web
 
 import groovy.json.JsonSlurper
+import org.krzysztofk.transfers.Main
 import ratpack.http.Status
-import ratpack.test.embed.EmbeddedApp
+import ratpack.test.MainClassApplicationUnderTest
 import spock.lang.Specification
 
 class AccountsHandlerTest extends Specification {
 
-    def accounts = EmbeddedApp.fromHandler(new AccountsHandler())
+    def application = new MainClassApplicationUnderTest(Main.class)
     def jsonSlurper = new JsonSlurper()
 
     def cleanup() {
-        accounts.close()
+        application.close()
     }
 
     def 'should add account'() {
@@ -25,17 +26,33 @@ class AccountsHandlerTest extends Specification {
         parsedResponse.balance == 100.0
     }
 
+    def 'should get account'() {
+        given:
+        postAccount(accountJson)
+
+        when:
+        def response = getAccount(accountNumber)
+
+        then:
+        response.status == Status.OK
+    }
+
     def postAccount(String accountJson) {
-        accounts.httpClient.requestSpec { spec ->
+        application.httpClient.requestSpec { spec ->
             spec.headers.'Content-Type' = ['application/json']
             spec.body { body ->
                 body.text(accountJson)
             }
-        }.post()
+        }.post('/accounts')
     }
 
-    def accountJson = '''{
-      "number": "1111494353829482435345",
+    def getAccount(String accountNumber) {
+        application.httpClient.get('accounts/' + accountNumber)
+    }
+
+    def accountNumber = '1111494353829482435345'
+    def accountJson = """{
+      "number": "$accountNumber",
       "balance": 100.0
-    }'''
+    }"""
 }
