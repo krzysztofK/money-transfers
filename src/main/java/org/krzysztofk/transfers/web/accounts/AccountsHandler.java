@@ -1,4 +1,4 @@
-package org.krzysztofk.transfers.web;
+package org.krzysztofk.transfers.web.accounts;
 
 import org.krzysztofk.transfers.accounts.Account;
 import org.krzysztofk.transfers.accounts.AccountService;

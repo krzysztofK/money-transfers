@@ -1,7 +1,7 @@
 package org.krzysztofk.transfers;
 
 import org.krzysztofk.transfers.accounts.AccountService;
-import org.krzysztofk.transfers.web.AccountsHandler;
+import org.krzysztofk.transfers.web.accounts.AccountsHandler;
 import ratpack.server.RatpackServer;
 
 public class Main {
