@@ -28,6 +28,23 @@ class TransfersHandlerTest extends Specification {
         parsedResponse.amount == 10.0
     }
 
+    def 'should get transfer'() {
+        given:
+        def postTransferResponse = postTransfer(transferJson)
+        def transferId = jsonSlurper.parseText(postTransferResponse.body.text).id
+
+        when:
+        def response = getTransfer(transferId)
+
+        then:
+        response.status == Status.OK
+        def parsedResponse = jsonSlurper.parseText(response.body.text)
+        parsedResponse.id == transferId
+        parsedResponse.debitedAccountNumber == '11110000'
+        parsedResponse.creditedAccountNumber == '22220000'
+        parsedResponse.amount == 10.0
+    }
+
     def postTransfer(String transferJson) {
         application.httpClient.requestSpec { spec ->
             spec.headers.'Content-Type' = ['application/json']
@@ -35,6 +52,10 @@ class TransfersHandlerTest extends Specification {
                 body.text(transferJson)
             }
         }.post('/transfers')
+    }
+
+    def getTransfer(transferId) {
+        application.httpClient.get('transfers/' + transferId)
     }
 
     def transferJson = """{

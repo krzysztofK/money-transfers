@@ -13,7 +13,7 @@ public class Main {
         RatpackServer.start(server -> server
                 .handlers(chain -> chain
                         .path("accounts/:number?", new AccountsHandler(accountService))
-                        .path("transfers", new TransfersHandler(transferService))
+                        .path("transfers/:id?", new TransfersHandler(transferService))
                 )
         );
     }

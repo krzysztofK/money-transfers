@@ -1,4 +1,4 @@
-package org.krzysztofk.transfers.web
+package org.krzysztofk.transfers.web.accounts
 
 import groovy.json.JsonSlurper
 import org.krzysztofk.transfers.Main
