@@ -17,4 +17,8 @@ class AccountRepository {
     Optional<Account> get(String number) {
         return Optional.ofNullable(accounts.get(number));
     }
+
+    boolean update(Account oldAccount, Account newAccount) {
+        return accounts.replace(newAccount.getNumber(), oldAccount, newAccount);
+    }
 }

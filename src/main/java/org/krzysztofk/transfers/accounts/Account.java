@@ -19,4 +19,8 @@ public class Account {
     public BigDecimal getBalance() {
         return balance;
     }
+
+    Account debit(BigDecimal amount) {
+        return new Account(number, balance.subtract(amount));
+    }
 }

@@ -16,4 +16,8 @@ public class AccountService {
     public Optional<Account> get(String number) {
         return accountRepository.get(number);
     }
+
+    public void debitAccount(String number, BigDecimal amount) {
+        get(number).map(account -> accountRepository.update(account, account.debit(amount)));
+    }
 }
