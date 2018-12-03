@@ -29,6 +29,7 @@ class TransferServiceTest extends Specification {
         then:
         def debitedAccount = accountService.get(accountToDebit.number)
         debitedAccount.get().balance == 90.0
+        debitedAccount.get().debits.head().amount == 10.0
     }
 
     def 'should get transfer by id'() {
