@@ -24,13 +24,17 @@ public class AccountsHandler implements Handler {
                         .post(() -> {
                             context.getResponse().status(Status.CREATED);
                             context.render(
-                                    context.parse(fromJson(Account.class))
-                                            .map(accountService::add)
+                                    context.parse(fromJson(NewAccountDTO.class))
+                                            .map(this::handleNewAccount)
                                             .map(Jackson.toJson(context)));
                         })
                         .get(() ->
                                 context.render(
                                         Jackson.toJson(context).apply(
                                                 accountService.get(context.getAllPathTokens().get("number")).orElse(null)))));
+    }
+
+    private Account handleNewAccount(NewAccountDTO newAccountDTO) {
+        return accountService.createAccount(newAccountDTO.getNumber(), newAccountDTO.getBalance());
     }
 }

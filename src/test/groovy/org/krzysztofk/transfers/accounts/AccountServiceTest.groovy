@@ -12,22 +12,22 @@ class AccountServiceTest extends Specification {
 
     def 'should add account'() {
         given:
-        def account = new Account('11110000', 100.0)
+        def accountNumber = '11110000'
 
         when:
-        def addedAccount = accountService.add(account)
+        def addedAccount = accountService.createAccount(accountNumber, 100.0)
 
         then:
-        addedAccount.number == account.number
+        addedAccount.number == accountNumber
+        addedAccount.balance == 100.0
     }
 
     def 'should throw exception if account already exists'() {
         given:
-        def account = new Account('11110000', 100.0)
-        accountService.add(account)
+        accountService.createAccount('11110000', 100.0)
 
         when:
-        accountService.add(account)
+        accountService.createAccount('11110000', 100.0)
 
         then:
         thrown(AccountAlreadyExistsException)
@@ -35,16 +35,16 @@ class AccountServiceTest extends Specification {
 
     def 'should get account by number'() {
         given:
-        def account = new Account('11110000', 100.0)
-        accountService.add(account)
+        def accountNumber = '11110000'
+        accountService.createAccount('11110000', 100.0)
 
         when:
-        def readAccount = accountService.get(account.number)
+        def readAccount = accountService.get(accountNumber)
 
         then:
         with(readAccount.get()) {
-            number == account.number
-            balance == account.balance
+            number == accountNumber
+            balance == 100.0
         }
     }
 }

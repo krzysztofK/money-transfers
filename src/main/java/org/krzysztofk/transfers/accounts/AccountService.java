@@ -1,12 +1,14 @@
 package org.krzysztofk.transfers.accounts;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 public class AccountService {
 
     private final AccountRepository accountRepository = new AccountRepository();
 
-    public Account add(Account account) {
+    public Account createAccount(String number, BigDecimal balance) {
+        Account account = new Account(number, balance);
         accountRepository.add(account);
         return account;
     }
