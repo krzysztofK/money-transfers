@@ -1,15 +1,16 @@
 package org.krzysztofk.transfers.accounts;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 class AccountRepository {
 
-    private final Map<String, Account> accounts = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Account> accounts = new ConcurrentHashMap<>();
 
     void add(Account account) {
-        accounts.put(account.getNumber(), account);
+        if (accounts.putIfAbsent(account.getNumber(), account) != null) {
+            throw new AccountAlreadyExistsException();
+        }
     }
 
     Optional<Account> get(String number) {

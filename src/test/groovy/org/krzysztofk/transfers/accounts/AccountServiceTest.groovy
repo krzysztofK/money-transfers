@@ -4,7 +4,11 @@ import spock.lang.Specification
 
 class AccountServiceTest extends Specification {
 
-    def accountService = new AccountService()
+    def accountService
+
+    def setup() {
+        accountService = new AccountService()
+    }
 
     def 'should add account'() {
         given:
@@ -15,6 +19,18 @@ class AccountServiceTest extends Specification {
 
         then:
         addedAccount.number == account.number
+    }
+
+    def 'should throw exception if account already exists'() {
+        given:
+        def account = new Account('11110000', 100.0)
+        accountService.add(account)
+
+        when:
+        accountService.add(account)
+
+        then:
+        thrown(AccountAlreadyExistsException)
     }
 
     def 'should get account by number'() {
