@@ -35,6 +35,9 @@ class AccountsHandlerTest extends Specification {
 
         then:
         response.status == Status.OK
+        def parsedResponse = jsonSlurper.parseText(response.body.text)
+        parsedResponse.number == '1111494353829482435345'
+        parsedResponse.balance == 100.0
     }
 
     def postAccount(String accountJson) {
