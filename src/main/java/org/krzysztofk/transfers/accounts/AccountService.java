@@ -23,4 +23,8 @@ public class AccountService {
         Debit debit = new Debit(transferId, amount, Instant.now());
         get(number).map(account -> accountRepository.update(account, account.debit(debit)));
     }
+
+    public void creditAccount(String number, BigDecimal amount) {
+        get(number).map(account -> accountRepository.update(account, account.credit(amount)));
+    }
 }

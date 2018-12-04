@@ -36,14 +36,22 @@ public class Account {
     }
 
     Account debit(Debit debit) {
-        return new Account(number, calculateBalance(debit), addDebit(debit));
+        return new Account(number, calculateBalanceWithDebit(debit), addDebit(debit));
     }
 
-    private BigDecimal calculateBalance(Debit debit) {
+    private BigDecimal calculateBalanceWithDebit(Debit debit) {
         return balance.subtract(debit.getAmount());
     }
 
     private List<Debit> addDebit(Debit debit) {
         return Stream.concat(debits.stream(), Stream.of(debit)).collect(toList());
+    }
+
+    Account credit(BigDecimal amount) {
+        return new Account(number, calculateBalanceWithCredit(amount), debits);
+    }
+
+    private BigDecimal calculateBalanceWithCredit(BigDecimal amount) {
+        return balance.add(amount);
     }
 }

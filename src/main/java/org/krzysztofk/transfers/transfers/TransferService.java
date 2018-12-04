@@ -21,6 +21,7 @@ public class TransferService {
         Transfer transfer = new Transfer(randomUUID(), debitedAccountNumber, creditedAccountNumber, amount);
         transferRepository.add(transfer);
         accountService.debitAccount(debitedAccountNumber, transfer.getId(), amount);
+        accountService.creditAccount(creditedAccountNumber, amount);
         return transfer;
     }
 

@@ -32,6 +32,18 @@ class TransferServiceTest extends Specification {
         debitedAccount.get().debits.head().amount == 10.0
     }
 
+    def 'should credit account'() {
+        given:
+        def accountToCredit = accountService.createAccount('22220000', 100)
+
+        when:
+        transferService.createTransfer('11110000', accountToCredit.number, 10.0)
+
+        then:
+        def creditedAccount = accountService.get(accountToCredit.number)
+        creditedAccount.get().balance == 110.0
+    }
+
     def 'should get transfer by id'() {
         given:
         def createdTransfer = transferService.createTransfer('11110000', '22220000', 10.0)
