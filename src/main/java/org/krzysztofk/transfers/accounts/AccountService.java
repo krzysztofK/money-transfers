@@ -19,9 +19,17 @@ public class AccountService {
         return accountRepository.get(number);
     }
 
-    public void debitAccount(String number, UUID transferId, BigDecimal amount) {
-        Debit debit = new Debit(transferId, amount, Instant.now());
-        get(number).map(account -> accountRepository.update(account, account.debit(debit)));
+    public boolean debitAccount(String accountNumber, UUID transferId, BigDecimal amount) {
+        return get(accountNumber)
+                .map(account -> {
+                    if (account.getBalance().compareTo(amount) >= 0) {
+                        Debit debit = new Debit(transferId, amount, Instant.now());
+                        return accountRepository.update(account, account.debit(debit));
+                    } else {
+                        return false;
+                    }
+                })
+                .orElse(false);
     }
 
     public void creditAccount(String number, BigDecimal amount) {

@@ -19,29 +19,32 @@ class TransferServiceTest extends Specification {
         transfer.amount == 10.0
     }
 
-    def 'should debit account'() {
+    def 'should transfer money'() {
         given:
         def accountToDebit = accountService.createAccount('11110000', 100.0)
+        def accountToCredit = accountService.createAccount('22220000', 100.0)
 
         when:
-        transferService.createTransfer(accountToDebit.number, '22220000', 10.0)
+        transferService.createTransfer(accountToDebit.number, accountToCredit.number, 10.0)
 
         then:
         def debitedAccount = accountService.get(accountToDebit.number)
         debitedAccount.get().balance == 90.0
         debitedAccount.get().debits.head().amount == 10.0
+        accountService.get(accountToCredit.number).get().balance == 110.0
     }
 
-    def 'should credit account'() {
+    def 'should discard transfer if debited account does not have enough money'() {
         given:
-        def accountToCredit = accountService.createAccount('22220000', 100)
+        def accountToDebit = accountService.createAccount('11110000', 5.0)
+        def accountToCredit = accountService.createAccount('22220000', 100.0)
 
         when:
-        transferService.createTransfer('11110000', accountToCredit.number, 10.0)
+        transferService.createTransfer(accountToDebit.number, accountToCredit.number, 10.0)
 
         then:
-        def creditedAccount = accountService.get(accountToCredit.number)
-        creditedAccount.get().balance == 110.0
+        accountService.get(accountToDebit.number).get().balance == 5.0
+        accountService.get(accountToCredit.number).get().balance == 100.0
     }
 
     def 'should get transfer by id'() {
