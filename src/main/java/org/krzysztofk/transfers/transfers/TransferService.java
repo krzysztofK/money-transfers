@@ -28,9 +28,13 @@ public class TransferService {
         if (accountService.debitAccount(transfer.getDebitedAccountNumber(), transfer.getId(), transfer.getAmount())) {
             accountService.creditAccount(transfer.getCreditedAccountNumber(), transfer.getAmount());
         } else {
-            transferRepository.update(transfer, transfer.withStatus(Status.DEBIT_DISCARDED));
+            setTransferStatus(transfer, Status.DEBIT_DISCARDED);
         }
-        transferRepository.update(transfer, transfer.withStatus(Status.COMPLETED));
+        setTransferStatus(transfer, Status.COMPLETED);
+    }
+
+    private void setTransferStatus(Transfer transfer, Status status) {
+        transferRepository.update(transfer, transfer.withStatus(status));
     }
 
     public Optional<Transfer> get(UUID transferId) {
