@@ -47,4 +47,28 @@ class AccountServiceTest extends Specification {
             balance == 100.0
         }
     }
+
+    def 'should debit account'() {
+        given:
+        def account = accountService.createAccount('11110000', 100.0)
+
+        expect:
+        accountService.debitAccount(account.number, UUID.randomUUID(), 10.0)
+        accountService.get(account.number).get().balance == 90.0
+    }
+
+    def 'should not debit account if not enough money available'() {
+        given:
+        def account = accountService.createAccount('11110000', 5.0)
+
+        expect:
+        !accountService.debitAccount(account.number, UUID.randomUUID(), 10.0)
+        accountService.get(account.number).get().balance == 5.0
+    }
+
+    def 'should not debit account if no account with requested id'() {
+        expect:
+        !accountService.debitAccount('11110000', UUID.randomUUID(), 10.0)
+    }
+
 }
