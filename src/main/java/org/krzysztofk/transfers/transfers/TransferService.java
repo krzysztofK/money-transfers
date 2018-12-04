@@ -20,13 +20,17 @@ public class TransferService {
     public Transfer createTransfer(String debitedAccountNumber, String creditedAccountNumber, BigDecimal amount) {
         Transfer transfer = newTransfer(debitedAccountNumber, creditedAccountNumber, amount);
         transferRepository.add(transfer);
-        if (accountService.debitAccount(debitedAccountNumber, transfer.getId(), amount)) {
-            accountService.creditAccount(creditedAccountNumber, amount);
+        executeTransfer(transfer);
+        return transfer;
+    }
+
+    private void executeTransfer(Transfer transfer) {
+        if (accountService.debitAccount(transfer.getDebitedAccountNumber(), transfer.getId(), transfer.getAmount())) {
+            accountService.creditAccount(transfer.getCreditedAccountNumber(), transfer.getAmount());
         } else {
             transferRepository.update(transfer, transfer.withStatus(Status.DEBIT_DISCARDED));
         }
         transferRepository.update(transfer, transfer.withStatus(Status.COMPLETED));
-        return transfer;
     }
 
     public Optional<Transfer> get(UUID transferId) {
