@@ -15,6 +15,10 @@ class TransferRepository {
         }
     }
 
+    void update(Transfer oldTransfer, Transfer newTransfer) {
+        transfers.replace(newTransfer.getId(), oldTransfer, newTransfer);
+    }
+
     Optional<Transfer> get(UUID transferId) {
         return Optional.ofNullable(transfers.get(transferId));
     }

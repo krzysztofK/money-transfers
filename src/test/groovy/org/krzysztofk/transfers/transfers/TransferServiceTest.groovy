@@ -40,11 +40,12 @@ class TransferServiceTest extends Specification {
         def accountToCredit = accountService.createAccount('22220000', 100.0)
 
         when:
-        transferService.createTransfer(accountToDebit.number, accountToCredit.number, 10.0)
+        def transfer = transferService.createTransfer(accountToDebit.number, accountToCredit.number, 10.0)
 
         then:
         accountService.get(accountToDebit.number).get().balance == 5.0
         accountService.get(accountToCredit.number).get().balance == 100.0
+        transferService.get(transfer.id).get().status == Status.DEBIT_DISCARDED
     }
 
     def 'should get transfer by id'() {

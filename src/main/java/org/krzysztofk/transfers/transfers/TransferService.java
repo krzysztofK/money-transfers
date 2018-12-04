@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
 
-import static java.util.UUID.randomUUID;
+import static org.krzysztofk.transfers.transfers.Transfer.newTransfer;
 
 public class TransferService {
 
@@ -18,10 +18,12 @@ public class TransferService {
     }
 
     public Transfer createTransfer(String debitedAccountNumber, String creditedAccountNumber, BigDecimal amount) {
-        Transfer transfer = new Transfer(randomUUID(), debitedAccountNumber, creditedAccountNumber, amount);
+        Transfer transfer = newTransfer(debitedAccountNumber, creditedAccountNumber, amount);
         transferRepository.add(transfer);
         if (accountService.debitAccount(debitedAccountNumber, transfer.getId(), amount)) {
             accountService.creditAccount(creditedAccountNumber, amount);
+        } else {
+            transferRepository.update(transfer, transfer.debitDiscarded());
         }
         return transfer;
     }
