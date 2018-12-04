@@ -26,12 +26,12 @@ public class Transfer {
         return new Transfer(randomUUID(), debitedAccountNumber, creditedAccountNumber, amount, Status.PENDING);
     }
 
-    Transfer debitDiscarded() {
+    Transfer withStatus(Status status) {
         return new Transfer(this.id,
                 this.debitedAccountNumber,
                 this.creditedAccountNumber,
                 this.amount,
-                Status.DEBIT_DISCARDED);
+                status);
     }
 
     public UUID getId() {

@@ -23,8 +23,9 @@ public class TransferService {
         if (accountService.debitAccount(debitedAccountNumber, transfer.getId(), amount)) {
             accountService.creditAccount(creditedAccountNumber, amount);
         } else {
-            transferRepository.update(transfer, transfer.debitDiscarded());
+            transferRepository.update(transfer, transfer.withStatus(Status.DEBIT_DISCARDED));
         }
+        transferRepository.update(transfer, transfer.withStatus(Status.COMPLETED));
         return transfer;
     }
 
