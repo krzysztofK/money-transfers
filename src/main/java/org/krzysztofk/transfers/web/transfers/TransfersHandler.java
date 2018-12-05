@@ -7,6 +7,7 @@ import ratpack.handling.Handler;
 import ratpack.http.Status;
 import ratpack.jackson.Jackson;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static ratpack.jackson.Jackson.fromJson;
@@ -30,10 +31,14 @@ public class TransfersHandler implements Handler {
                                             .map(this::handleNewTransfer)
                                             .map(Jackson.toJson(context)));
                         })
-                        .get(() ->
-                                context.render(
-                                        Jackson.toJson(context).apply(
-                                                transferService.get(UUID.fromString(context.getAllPathTokens().get("id"))).orElse(null)))));
+                        .get(() -> {
+                            Optional<Transfer> transfer = transferService.get(UUID.fromString(context.getAllPathTokens().get("id")));
+                            if (transfer.isPresent()) {
+                                context.render(Jackson.toJson(context).apply(transfer.get()));
+                            } else {
+                                context.getResponse().status(Status.NOT_FOUND).send();
+                            }
+                        }));
     }
 
     private Transfer handleNewTransfer(NewTransferDTO newTransferDTO) {

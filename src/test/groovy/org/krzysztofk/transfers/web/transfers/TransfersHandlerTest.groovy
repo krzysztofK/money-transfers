@@ -6,6 +6,8 @@ import ratpack.http.Status
 import ratpack.test.MainClassApplicationUnderTest
 import spock.lang.Specification
 
+import static java.util.UUID.randomUUID
+
 class TransfersHandlerTest extends Specification {
 
     def application = new MainClassApplicationUnderTest(Main.class)
@@ -27,6 +29,11 @@ class TransfersHandlerTest extends Specification {
         parsedResponse.creditedAccountNumber == '22220000'
         parsedResponse.amount == 10.0
         parsedResponse.status == 'PENDING'
+    }
+
+    def 'should return 404 if transfer not found'() {
+        expect:
+        getTransfer(randomUUID().toString()).status == Status.NOT_FOUND
     }
 
     def 'should get transfer'() {

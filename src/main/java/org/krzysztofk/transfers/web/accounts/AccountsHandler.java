@@ -7,6 +7,8 @@ import ratpack.handling.Handler;
 import ratpack.http.Status;
 import ratpack.jackson.Jackson;
 
+import java.util.Optional;
+
 import static ratpack.jackson.Jackson.fromJson;
 
 public class AccountsHandler implements Handler {
@@ -28,10 +30,15 @@ public class AccountsHandler implements Handler {
                                             .map(this::handleNewAccount)
                                             .map(Jackson.toJson(context)));
                         })
-                        .get(() ->
-                                context.render(
-                                        Jackson.toJson(context).apply(
-                                                accountService.get(context.getAllPathTokens().get("number")).orElse(null)))));
+                        .get(() -> {
+                                    Optional<Account> account = accountService.get(context.getAllPathTokens().get("number"));
+                                    if (account.isPresent()) {
+                                        context.render(Jackson.toJson(context).apply(account.get()));
+                                    } else {
+                                        context.getResponse().status(Status.NOT_FOUND).send();
+                                    }
+                                }
+                        ));
     }
 
     private Account handleNewAccount(NewAccountDTO newAccountDTO) {

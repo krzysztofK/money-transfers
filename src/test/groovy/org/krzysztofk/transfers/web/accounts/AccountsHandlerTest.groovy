@@ -26,6 +26,11 @@ class AccountsHandlerTest extends Specification {
         parsedResponse.balance == 100.0
     }
 
+    def 'should return 404 if transfer not found'() {
+        expect:
+        getAccount('111122223333').status == Status.NOT_FOUND
+    }
+
     def 'should get account'() {
         given:
         postAccount(accountJson)
