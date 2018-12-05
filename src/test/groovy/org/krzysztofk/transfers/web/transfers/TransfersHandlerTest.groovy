@@ -26,6 +26,7 @@ class TransfersHandlerTest extends Specification {
         parsedResponse.debitedAccountNumber == '11110000'
         parsedResponse.creditedAccountNumber == '22220000'
         parsedResponse.amount == 10.0
+        parsedResponse.status == 'PENDING'
     }
 
     def 'should get transfer'() {
@@ -43,6 +44,7 @@ class TransfersHandlerTest extends Specification {
         parsedResponse.debitedAccountNumber == '11110000'
         parsedResponse.creditedAccountNumber == '22220000'
         parsedResponse.amount == 10.0
+        parsedResponse.status == 'DEBIT_DISCARDED'
     }
 
     def postTransfer(String transferJson) {

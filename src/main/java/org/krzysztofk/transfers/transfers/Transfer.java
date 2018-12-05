@@ -11,7 +11,6 @@ public class Transfer {
     private final String debitedAccountNumber;
     private final String creditedAccountNumber;
     private final BigDecimal amount;
-
     private final Status status;
 
     private Transfer(UUID id, String debitedAccountNumber, String creditedAccountNumber, BigDecimal amount, Status status) {
