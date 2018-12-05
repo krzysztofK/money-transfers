@@ -54,4 +54,8 @@ public class Account {
     private BigDecimal calculateBalanceWithCredit(BigDecimal amount) {
         return balance.add(amount);
     }
+
+    Account cancelDebit(BigDecimal amount) {
+        return new Account(number, calculateBalanceWithCredit(amount), debits);
+    }
 }

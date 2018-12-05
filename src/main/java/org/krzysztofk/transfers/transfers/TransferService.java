@@ -26,11 +26,15 @@ public class TransferService {
 
     private void executeTransfer(Transfer transfer) {
         if (accountService.debitAccount(transfer.getDebitedAccountNumber(), transfer.getId(), transfer.getAmount())) {
-            accountService.creditAccount(transfer.getCreditedAccountNumber(), transfer.getAmount());
+            if (accountService.creditAccount(transfer.getCreditedAccountNumber(), transfer.getAmount())) {
+                setTransferStatus(transfer, Status.COMPLETED);
+            } else {
+                accountService.cancelDebit(transfer.getDebitedAccountNumber(), transfer.getAmount());
+                setTransferStatus(transfer, Status.CREDIT_DISCARDED);
+            }
         } else {
             setTransferStatus(transfer, Status.DEBIT_DISCARDED);
         }
-        setTransferStatus(transfer, Status.COMPLETED);
     }
 
     private void setTransferStatus(Transfer transfer, Status status) {

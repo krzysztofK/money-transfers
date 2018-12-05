@@ -49,6 +49,18 @@ class TransferServiceTest extends Specification {
         transferService.get(transfer.id).get().status == Status.DEBIT_DISCARDED
     }
 
+    def 'should discard transfer if credited account does not exist'() {
+        given:
+        def accountToDebit = accountService.createAccount('11110000', 100.0)
+
+        when:
+        def transfer = transferService.createTransfer(accountToDebit.number, '22220000', 10.0)
+
+        then:
+        accountService.get(accountToDebit.number).get().balance == 100.0
+        transferService.get(transfer.id).get().status == Status.CREDIT_DISCARDED
+    }
+
     def 'should get transfer by id'() {
         given:
         def createdTransfer = transferService.createTransfer('11110000', '22220000', 10.0)

@@ -32,7 +32,15 @@ public class AccountService {
                 .orElse(false);
     }
 
-    public void creditAccount(String number, BigDecimal amount) {
-        get(number).map(account -> accountRepository.update(account, account.credit(amount)));
+    public boolean creditAccount(String number, BigDecimal amount) {
+        return get(number)
+                .map(account -> accountRepository.update(account, account.credit(amount)))
+                .orElse(false);
+    }
+
+    public boolean cancelDebit(String number, BigDecimal amount) {
+        return get(number)
+                .map(account -> accountRepository.update(account, account.cancelDebit(amount)))
+                .orElse(false);
     }
 }
