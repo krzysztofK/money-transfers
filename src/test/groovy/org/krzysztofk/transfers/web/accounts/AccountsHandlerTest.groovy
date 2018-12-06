@@ -17,7 +17,7 @@ class AccountsHandlerTest extends Specification {
 
     def 'should add account'() {
         when:
-        def response = postAccount(accountJson)
+        def response = AccountsRequests.postAccount(application, accountJson)
 
         then:
         response.status == Status.CREATED
@@ -28,34 +28,21 @@ class AccountsHandlerTest extends Specification {
 
     def 'should return 404 if transfer not found'() {
         expect:
-        getAccount('111122223333').status == Status.NOT_FOUND
+        AccountsRequests.getAccount(application, '111122223333').status == Status.NOT_FOUND
     }
 
     def 'should get account'() {
         given:
-        postAccount(accountJson)
+        AccountsRequests.postAccount(application, accountJson)
 
         when:
-        def response = getAccount(accountNumber)
+        def response = AccountsRequests.getAccount(application, accountNumber)
 
         then:
         response.status == Status.OK
         def parsedResponse = jsonSlurper.parseText(response.body.text)
         parsedResponse.number == '1111494353829482435345'
         parsedResponse.balance == 100.0
-    }
-
-    def postAccount(String accountJson) {
-        application.httpClient.requestSpec { spec ->
-            spec.headers.'Content-Type' = ['application/json']
-            spec.body { body ->
-                body.text(accountJson)
-            }
-        }.post('/accounts')
-    }
-
-    def getAccount(String accountNumber) {
-        application.httpClient.get('accounts/' + accountNumber)
     }
 
     def accountNumber = '1111494353829482435345'

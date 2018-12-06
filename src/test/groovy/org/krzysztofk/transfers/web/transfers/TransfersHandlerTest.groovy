@@ -19,7 +19,7 @@ class TransfersHandlerTest extends Specification {
 
     def 'should add transfer'() {
         when:
-        def response = postTransfer(transferJson)
+        def response = TransfersRequests.postTransfer(application, transferJson)
 
         then:
         response.status == Status.CREATED
@@ -33,16 +33,16 @@ class TransfersHandlerTest extends Specification {
 
     def 'should return 404 if transfer not found'() {
         expect:
-        getTransfer(randomUUID().toString()).status == Status.NOT_FOUND
+        TransfersRequests.getTransfer(application, randomUUID().toString()).status == Status.NOT_FOUND
     }
 
     def 'should get transfer'() {
         given:
-        def postTransferResponse = postTransfer(transferJson)
+        def postTransferResponse = TransfersRequests.postTransfer(application, transferJson)
         def transferId = jsonSlurper.parseText(postTransferResponse.body.text).id
 
         when:
-        def response = getTransfer(transferId)
+        def response = TransfersRequests.getTransfer(application, transferId)
 
         then:
         response.status == Status.OK
@@ -52,19 +52,6 @@ class TransfersHandlerTest extends Specification {
         parsedResponse.creditedAccountNumber == '22220000'
         parsedResponse.amount == 10.0
         parsedResponse.status == 'DEBIT_DISCARDED'
-    }
-
-    def postTransfer(String transferJson) {
-        application.httpClient.requestSpec { spec ->
-            spec.headers.'Content-Type' = ['application/json']
-            spec.body { body ->
-                body.text(transferJson)
-            }
-        }.post('/transfers')
-    }
-
-    def getTransfer(transferId) {
-        application.httpClient.get('transfers/' + transferId)
     }
 
     def transferJson = """{
