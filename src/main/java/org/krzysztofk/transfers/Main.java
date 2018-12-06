@@ -1,5 +1,9 @@
 package org.krzysztofk.transfers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.krzysztofk.transfers.accounts.AccountService;
 import org.krzysztofk.transfers.transfers.TransferService;
 import org.krzysztofk.transfers.web.accounts.AccountsHandler;
@@ -15,6 +19,15 @@ public class Main {
                         .path("accounts/:number?", new AccountsHandler(accountService))
                         .path("transfers/:id?", new TransfersHandler(transferService))
                 )
+                .registryOf(registry ->
+                        registry.add(ObjectMapper.class, configureObjectMapper()))
         );
+    }
+
+    private static ObjectMapper configureObjectMapper() {
+        return new ObjectMapper()
+                .registerModule(new Jdk8Module())
+                .registerModule(new JavaTimeModule())
+                .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     }
 }

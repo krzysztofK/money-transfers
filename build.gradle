@@ -20,6 +20,8 @@ repositories {
 
 dependencies {
     runtime "org.slf4j:slf4j-simple:1.7.25"
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jdk8', version: '2.9.7'
+    compile group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.9.7'
     testCompile "org.spockframework:spock-core:1.1-groovy-2.4-rc-2"
 }
 
