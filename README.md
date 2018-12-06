@@ -23,7 +23,6 @@ To get account send http request:
 ```
 GET /accounts/1239034932014910249430 HTTP/1.1
 Host: localhost:5050
-Content-Type: application/json
 ```
 
 To add transfer send http request:
@@ -44,5 +43,4 @@ To get transfer send http request:
 ```
 GET /transfers/04bd17df-2532-4392-8e4d-8ce9e3159752 HTTP/1.1
 Host: localhost:5050
-Content-Type: application/json
 ```
