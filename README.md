@@ -1,4 +1,4 @@
-# money-transfers
+# Money transfers
 
 To run application execute:
 
