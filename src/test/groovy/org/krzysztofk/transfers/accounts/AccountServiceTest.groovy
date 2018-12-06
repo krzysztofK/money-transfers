@@ -20,6 +20,7 @@ class AccountServiceTest extends Specification {
         then:
         addedAccount.number == accountNumber
         addedAccount.balance == 100.0
+        addedAccount.operations.empty
     }
 
     def 'should throw exception if account already exists'() {
@@ -45,16 +46,24 @@ class AccountServiceTest extends Specification {
         with(readAccount.get()) {
             number == accountNumber
             balance == 100.0
+            operations.empty
         }
     }
 
     def 'should debit account'() {
         given:
         def account = accountService.createAccount('11110000', 100.0)
+        def transferId = UUID.randomUUID()
 
         expect:
-        accountService.debitAccount(account.number, UUID.randomUUID(), 10.0)
-        accountService.get(account.number).get().balance == 90.0
+        accountService.debitAccount(account.number, transferId, 10.0)
+        with(accountService.get(account.number).get()) {
+            balance == 90.0
+            operations[0].transferId == transferId
+            operations[0].amount == 10.0
+            operations[0].balance == 90.0
+            operations[0].operationType == OperationType.DEBIT
+        }
     }
 
     def 'should not debit account if not enough money available'() {
@@ -63,7 +72,10 @@ class AccountServiceTest extends Specification {
 
         expect:
         !accountService.debitAccount(account.number, UUID.randomUUID(), 10.0)
-        accountService.get(account.number).get().balance == 5.0
+        with(accountService.get(account.number).get()) {
+            balance == 5.0
+            operations.empty
+        }
     }
 
     def 'should not debit account if no account with requested number'() {
@@ -79,21 +91,36 @@ class AccountServiceTest extends Specification {
     def 'should credit account'() {
         given:
         def account = accountService.createAccount('11110000', 100.0)
+        def transferId = UUID.randomUUID()
 
         expect:
-        accountService.creditAccount(account.number, 10.0)
-        accountService.get(account.number).get().balance == 110.0
+        accountService.creditAccount(account.number, transferId, 10.0)
+        with(accountService.get(account.number).get()) {
+            balance == 110.0
+            operations[0].transferId == transferId
+            operations[0].amount == 10.0
+            operations[0].balance == 110.0
+            operations[0].operationType == OperationType.CREDIT
+        }
     }
 
     def 'should cancel debit'() {
         given:
         def account = accountService.createAccount('11110000', 100.0)
-        accountService.debitAccount(account.number, UUID.randomUUID(), 10.0)
+        def transferId = UUID.randomUUID()
+        accountService.debitAccount(account.number, transferId, 10.0)
 
         when:
-        accountService.cancelDebit(account.number, 10.0)
+        accountService.cancelDebit(account.number, transferId, 10.0)
 
         then:
-        accountService.get(account.number).get().balance == 100.0
+        with(accountService.get(account.number).get()) {
+            balance == 100.0
+            operations.size == 2
+            operations[1].transferId == transferId
+            operations[1].amount == 10.0
+            operations[1].balance == 100.0
+            operations[1].operationType == OperationType.DEBIT_CANCEL
+        }
     }
 }

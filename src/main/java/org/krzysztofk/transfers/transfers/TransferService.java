@@ -26,10 +26,10 @@ public class TransferService {
 
     private void executeTransfer(Transfer transfer) {
         if (accountService.debitAccount(transfer.getDebitedAccountNumber(), transfer.getId(), transfer.getAmount())) {
-            if (accountService.creditAccount(transfer.getCreditedAccountNumber(), transfer.getAmount())) {
+            if (accountService.creditAccount(transfer.getCreditedAccountNumber(), transfer.getId(), transfer.getAmount())) {
                 setTransferStatus(transfer, Status.COMPLETED);
             } else {
-                accountService.cancelDebit(transfer.getDebitedAccountNumber(), transfer.getAmount());
+                accountService.cancelDebit(transfer.getDebitedAccountNumber(), transfer.getId(), transfer.getAmount());
                 setTransferStatus(transfer, Status.CREDIT_DISCARDED);
             }
         } else {

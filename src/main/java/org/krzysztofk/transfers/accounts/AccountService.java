@@ -1,7 +1,6 @@
 package org.krzysztofk.transfers.accounts;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,8 +22,7 @@ public class AccountService {
         return get(accountNumber)
                 .map(account -> {
                     if (account.getBalance().compareTo(amount) >= 0) {
-                        Debit debit = new Debit(transferId, amount, Instant.now());
-                        return accountRepository.update(account, account.debit(debit));
+                        return accountRepository.update(account, account.debit(transferId, amount));
                     } else {
                         return false;
                     }
@@ -32,15 +30,15 @@ public class AccountService {
                 .orElse(false);
     }
 
-    public boolean creditAccount(String number, BigDecimal amount) {
+    public boolean creditAccount(String number, UUID transferId, BigDecimal amount) {
         return get(number)
-                .map(account -> accountRepository.update(account, account.credit(amount)))
+                .map(account -> accountRepository.update(account, account.credit(transferId, amount)))
                 .orElse(false);
     }
 
-    public boolean cancelDebit(String number, BigDecimal amount) {
+    public boolean cancelDebit(String number, UUID transferId, BigDecimal amount) {
         return get(number)
-                .map(account -> accountRepository.update(account, account.cancelDebit(amount)))
+                .map(account -> accountRepository.update(account, account.cancelDebit(transferId, amount)))
                 .orElse(false);
     }
 }

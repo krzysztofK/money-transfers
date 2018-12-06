@@ -30,7 +30,6 @@ class TransferServiceTest extends Specification {
         then:
         def debitedAccount = accountService.get(accountToDebit.number)
         debitedAccount.get().balance == 90.0
-        debitedAccount.get().debits.head().amount == 10.0
         accountService.get(accountToCredit.number).get().balance == 110.0
         transferService.get(transfer.id).get().status == Status.COMPLETED
     }
