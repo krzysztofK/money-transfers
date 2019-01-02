@@ -41,8 +41,9 @@ public class AccountService {
     }
 
     public boolean cancelDebit(String number, UUID transferId, BigDecimal amount) {
-        return get(number)
-                .map(account -> accountRepository.update(account, account.cancelDebit(transferId, amount)))
-                .orElse(false);
+        return executeWithRetry(() ->
+                get(number)
+                        .map(account -> accountRepository.update(account, account.cancelDebit(transferId, amount)))
+                        .orElse(false));
     }
 }
