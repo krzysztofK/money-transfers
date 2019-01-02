@@ -25,7 +25,7 @@ public class AccountService {
                 get(accountNumber)
                         .map(account -> {
                             if (account.getBalance().compareTo(amount) >= 0) {
-                                return accountRepository.update(account, account.debit(transferId, amount));
+                                return updateAccount(account, account.debit(transferId, amount));
                             } else {
                                 return false;
                             }
@@ -36,14 +36,19 @@ public class AccountService {
     public boolean creditAccount(String number, UUID transferId, BigDecimal amount) {
         return executeWithRetry(() ->
                 get(number)
-                        .map(account -> accountRepository.update(account, account.credit(transferId, amount)))
+                        .map(account -> updateAccount(account, account.credit(transferId, amount)))
                         .orElse(false));
     }
 
     public boolean cancelDebit(String number, UUID transferId, BigDecimal amount) {
         return executeWithRetry(() ->
                 get(number)
-                        .map(account -> accountRepository.update(account, account.cancelDebit(transferId, amount)))
+                        .map(account -> updateAccount(account, account.cancelDebit(transferId, amount)))
                         .orElse(false));
+    }
+
+    private boolean updateAccount(Account oldAccount, Account newAccount) {
+        accountRepository.update(oldAccount, newAccount);
+        return true;
     }
 }

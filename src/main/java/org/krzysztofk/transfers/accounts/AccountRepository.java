@@ -18,11 +18,9 @@ class AccountRepository {
         return Optional.ofNullable(accounts.get(number));
     }
 
-    boolean update(Account oldAccount, Account newAccount) {
+    void update(Account oldAccount, Account newAccount) {
         if (!accounts.replace(newAccount.getNumber(), oldAccount, newAccount)) {
             throw new Retrier.ConcurrentUpdateException();
-        } else {
-            return true;
         }
     }
 }
