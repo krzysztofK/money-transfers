@@ -153,6 +153,26 @@ class AccountServiceTest extends Specification {
         }
     }
 
+    def 'should accept concurrent account credits'() {
+        given:
+        def numberOfThreads = 10
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads)
+        def account = accountService.createAccount('11110000', 100.0)
+
+        when:
+        List<Callable<Boolean>> creditCalls = (1..numberOfThreads).collect {
+            creditCall(account.number, 10.0)
+        }
+        List<Future<Boolean>> results = executorService.invokeAll(creditCalls)
+
+        then:
+        results.every { it.get() }
+        with(accountService.get(account.number).get()) {
+            balance == 200.0
+            operations.size() == numberOfThreads
+        }
+    }
+
     def 'should cancel debit'() {
         given:
         def account = accountService.createAccount('11110000', 100.0)
@@ -180,4 +200,13 @@ class AccountServiceTest extends Specification {
                 }
         ] as Callable<Boolean>
     }
+
+    def creditCall(String accountNumber, BigDecimal amount) {
+        [
+                call: {
+                    accountService.creditAccount(accountNumber, UUID.randomUUID(), amount)
+                }
+        ] as Callable<Boolean>
+    }
+
 }

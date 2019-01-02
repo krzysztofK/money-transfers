@@ -34,9 +34,10 @@ public class AccountService {
     }
 
     public boolean creditAccount(String number, UUID transferId, BigDecimal amount) {
-        return get(number)
-                .map(account -> accountRepository.update(account, account.credit(transferId, amount)))
-                .orElse(false);
+        return executeWithRetry(() ->
+                get(number)
+                        .map(account -> accountRepository.update(account, account.credit(transferId, amount)))
+                        .orElse(false));
     }
 
     public boolean cancelDebit(String number, UUID transferId, BigDecimal amount) {
