@@ -2,6 +2,11 @@ package org.krzysztofk.transfers.accounts
 
 import spock.lang.Specification
 
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
+
 class AccountServiceTest extends Specification {
 
     def accountService
@@ -81,6 +86,30 @@ class AccountServiceTest extends Specification {
     def 'should not debit account if no account with requested number'() {
         expect:
         !accountService.debitAccount('11110000', UUID.randomUUID(), 10.0)
+    }
+
+    def 'should accept concurrent account debits'() {
+        given:
+        def numberOfThreads = 10
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads)
+        def account = accountService.createAccount('11110000', 100.0)
+
+        when:
+        List<Callable<Boolean>> debitCalls = (1..numberOfThreads).collect {
+            [
+                    call: {
+                        accountService.debitAccount(account.number, UUID.randomUUID(), 10)
+                    }
+            ] as Callable
+        }
+        List<Future<Boolean>> results = executorService.invokeAll(debitCalls)
+
+        then:
+        results.every { it.get() }
+        with(accountService.get(account.number).get()) {
+            balance == 0.0
+            operations.size() == numberOfThreads
+        }
     }
 
     def 'should not credit account if no account with requested number'() {
