@@ -96,11 +96,7 @@ class AccountServiceTest extends Specification {
 
         when:
         List<Callable<Boolean>> debitCalls = (1..numberOfThreads).collect {
-            [
-                    call: {
-                        accountService.debitAccount(account.number, UUID.randomUUID(), 10)
-                    }
-            ] as Callable
+            debitCall(account.number, 10.0)
         }
         List<Future<Boolean>> results = executorService.invokeAll(debitCalls)
 
@@ -109,6 +105,30 @@ class AccountServiceTest extends Specification {
         with(accountService.get(account.number).get()) {
             balance == 0.0
             operations.size() == numberOfThreads
+        }
+    }
+
+    def 'should accept concurrent account debits while enough money available'() {
+        given:
+        def numberOfThreads = 10
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads)
+        def account = accountService.createAccount('11110000', 55.0)
+
+        when:
+        List<Callable<Boolean>> debitCalls = (1..numberOfThreads).collect {
+            debitCall(account.number, 10.0)
+        }
+        List<Future<Boolean>> results = executorService.invokeAll(debitCalls)
+
+        then:
+        def acceptedDebits = 0
+        def declinedDebits = 0
+        results.each { it.get() ? acceptedDebits++ : declinedDebits++ }
+        acceptedDebits == 5
+        declinedDebits == numberOfThreads - 5
+        with(accountService.get(account.number).get()) {
+            balance == 5.0
+            operations.size() == acceptedDebits
         }
     }
 
@@ -151,5 +171,13 @@ class AccountServiceTest extends Specification {
             operations[1].balance == 100.0
             operations[1].operationType == OperationType.DEBIT_CANCEL
         }
+    }
+
+    def debitCall(String accountNumber, BigDecimal amount) {
+        [
+                call: {
+                    accountService.debitAccount(accountNumber, UUID.randomUUID(), amount)
+                }
+        ] as Callable<Boolean>
     }
 }
