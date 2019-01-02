@@ -91,14 +91,12 @@ class AccountServiceTest extends Specification {
     def 'should accept concurrent account debits'() {
         given:
         def numberOfThreads = 10
-        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads)
         def account = accountService.createAccount('11110000', 100.0)
 
         when:
-        List<Callable<Boolean>> debitCalls = (1..numberOfThreads).collect {
-            debitCall(account.number, 10.0)
-        }
-        List<Future<Boolean>> results = executorService.invokeAll(debitCalls)
+        List<Future<Boolean>> results = executeConcurrently(
+                numberOfThreads,
+                { debitCall(account.number, 10.0) })
 
         then:
         results.every { it.get() }
@@ -111,14 +109,13 @@ class AccountServiceTest extends Specification {
     def 'should accept concurrent account debits while enough money available'() {
         given:
         def numberOfThreads = 10
-        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads)
         def account = accountService.createAccount('11110000', 55.0)
 
         when:
-        List<Callable<Boolean>> debitCalls = (1..numberOfThreads).collect {
-            debitCall(account.number, 10.0)
-        }
-        List<Future<Boolean>> results = executorService.invokeAll(debitCalls)
+        List<Future<Boolean>> results = executeConcurrently(
+                numberOfThreads,
+                { debitCall(account.number, 10.0) }
+        )
 
         then:
         def acceptedDebits = 0
@@ -156,14 +153,12 @@ class AccountServiceTest extends Specification {
     def 'should accept concurrent account credits'() {
         given:
         def numberOfThreads = 10
-        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads)
         def account = accountService.createAccount('11110000', 100.0)
 
         when:
-        List<Callable<Boolean>> creditCalls = (1..numberOfThreads).collect {
-            creditCall(account.number, 10.0)
-        }
-        List<Future<Boolean>> results = executorService.invokeAll(creditCalls)
+        List<Future<Boolean>> results = executeConcurrently(
+                numberOfThreads,
+                { creditCall(account.number, 10.0) })
 
         then:
         results.every { it.get() }
@@ -196,14 +191,12 @@ class AccountServiceTest extends Specification {
     def 'should accept concurrent account debit cancels'() {
         given:
         def numberOfThreads = 10
-        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads)
         def account = accountService.createAccount('11110000', 100.0)
 
         when:
-        List<Callable<Boolean>> debitCancelCalls = (1..numberOfThreads).collect {
-            debitCancelCall(account.number, 10.0)
-        }
-        List<Future<Boolean>> results = executorService.invokeAll(debitCancelCalls)
+        List<Future<Boolean>> results = executeConcurrently(
+                numberOfThreads,
+                { debitCancelCall(account.number, 10.0) })
 
         then:
         results.every { it.get() }
@@ -211,6 +204,14 @@ class AccountServiceTest extends Specification {
             balance == 200.0
             operations.size() == numberOfThreads
         }
+    }
+
+    def executeConcurrently(int numberOfThreads, Closure<Callable<Boolean>> callSupplier) {
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads)
+        List<Callable<Boolean>> creditCalls = (1..numberOfThreads).collect {
+            callSupplier()
+        }
+        executorService.invokeAll(creditCalls)
     }
 
     def debitCall(String accountNumber, BigDecimal amount) {
@@ -236,5 +237,4 @@ class AccountServiceTest extends Specification {
                 }
         ] as Callable<Boolean>
     }
-
 }
